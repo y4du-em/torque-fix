@@ -45,6 +45,48 @@ pnpm type-check
 pnpm lint
 ```
 
+## Tests
+
+### Running tests
+
+```bash
+# From monorepo root
+pnpm test                              # all packages
+pnpm test:web                          # web app only (Vitest)
+pnpm test:vehicle-data                 # vehicle-data package only (Vitest)
+
+# Inside apps/web or packages/vehicle-data
+pnpm test                              # vitest run (single pass)
+pnpm test:watch                        # vitest (watch mode)
+
+# Run a single test file
+pnpm vitest run src/lib/__tests__/store.test.ts
+
+# Run a single named test (grep)
+pnpm vitest run --reporter=verbose -t "accumulates all yielded chunks"
+
+# Inside apps/api (pytest)
+pytest                                 # all tests
+pytest tests/test_routers.py          # single file
+pytest tests/test_routers.py::test_health_endpoint  # single test
+pytest -k "test_diagnose"             # keyword filter
+```
+
+### Test layout
+
+| Package | Framework | Location |
+|---|---|---|
+| `packages/vehicle-data` | Vitest | `src/__tests__/index.test.ts` |
+| `apps/web` | Vitest + @testing-library/react | `src/lib/__tests__/`, `src/hooks/__tests__/` |
+| `apps/api` | pytest + httpx | `tests/` |
+
+### Key testing conventions
+
+- **AAA structure**: every test uses Arrange → Act → Assert with a blank line between phases.
+- **Web hook tests** use `renderHook` + `await act(async () => { ... })` for async actions. Reset the Zustand store with `useTorqueFixStore.getState().resetAll()` in `beforeEach`.
+- **API mocking** in web tests uses `vi.mock("@/lib/api-client", ...)`. For async generators (streamChat) use `mockImplementation(async function* () { ... })`. For stable references in `vi.mock` factories (e.g., router push spy), declare with `vi.hoisted(() => vi.fn())`.
+- **Python tests**: `tests/conftest.py` sets `ANTHROPIC_API_KEY` via `os.environ.setdefault` before any app imports, then uses `unittest.mock.patch` to mock `_sync_client` and `_async_client` in `claude_service`.
+
 ## Architecture
 
 ### Overview

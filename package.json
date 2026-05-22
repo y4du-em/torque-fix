@@ -8,7 +8,10 @@
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "dev:web": "turbo dev --filter=web",
-    "dev:api": "turbo dev --filter=api"
+    "dev:api": "turbo dev --filter=api",
+    "test": "turbo test",
+    "test:web": "turbo test --filter=web",
+    "test:vehicle-data": "turbo test --filter=@torquefix/vehicle-data"
   },
   "devDependencies": {
     "turbo": "^2.3.3"
